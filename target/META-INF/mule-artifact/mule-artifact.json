@@ -1,0 +1,36 @@
+{
+  "configs": [
+    "implimentation/travelontip-GetRoutes-implimentation.xml",
+    "implimentation/travelontip-GetScehdules-implimentation.xml",
+    "global/travelontip-system.xml",
+    "global/globalElement.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:travelontip-system:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.5.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "application-types.xml",
+        "config/DEV.yaml",
+        "config/local.yaml",
+        "config/ppe.yaml",
+        "config/prd.yaml",
+        "config/sit.yaml",
+        "config/uat.yaml",
+        "global/globalElement.xml",
+        "global/travelontip-system.xml",
+        "implimentation/travelontip-GetRoutes-implimentation.xml",
+        "implimentation/travelontip-GetScehdules-implimentation.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="travelontip-systemFlow" doc:id="4de632bf-df9c-496e-877f-adc0dc3d6d49" >
+		<http:listener doc:name="Listener" doc:id="00076497-b5d8-404c-839c-97e0dad1187a" config-ref="HTTP_Listener_config" path="${http.listner.path}">
+			<http:error-response statusCode="#[vars.statusCode as Number]" >
+				<http:body ><![CDATA[#[vars.errorMessage default "Critical Error"]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="e260053d-c24f-4ac6-8a26-4ec6e94e4673">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="serviceType"><![CDATA[%dw 2.0
+output application/json
+---
+attributes.uriParams.serviceType]]></ee:set-variable>
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.headers.transactionId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="13b90478-95a9-4d12-ad82-065d796205ee" message="==Request Recieved for travelontip external system for transactionId: #[vars.transactionId]=="/>
+		<choice doc:name="Choice" doc:id="5ccb303e-de12-4ce7-9bb9-106569ac3f19" >
+			<when expression='#[vars.serviceType == "routes"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="b50666ea-2228-4110-b75a-ea1a74dd4de4" message="==routes flow called travelontip external system for transactionId:  #[vars.transactionId]=="/>
+				<flow-ref doc:name="Flow Reference" doc:id="d2b72040-355c-4400-844b-48eb629b8f8a" name="travelontip-GetRoutes-implimentationsub-flow"/>
+			</when>
+			<when expression='#[vars.serviceType == "schedules"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="65f63b24-605d-4d18-ad1a-aa6bfdc856c0" message="== schedules flow called travelontip external system for transactionId:  #[vars.transactionId]=="/>
+				<flow-ref doc:name="Flow Reference" doc:id="afd15ed8-7c61-4f56-aa0b-83526bc0a80f" name="travelontip-GetScehdules-implimentationSub_Flow"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="df3a6e46-20da-459f-9c8c-70e92a919b73" message="==  URI Parameter not correct for travelontip external system  for  transactionId: #[vars.transactionId]=="/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="d993ace3-c35f-43d0-99e4-113bd90896f6" message="==Response sent for travelontip external system for transactionId:  #[vars.transactionId]=="/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="99422acf-8ee6-4a51-8054-166124308ce5" >
+				<logger level="INFO" doc:name="Logger" doc:id="5789db88-0b73-49b7-a7ff-8700c49094f1" message="==error occured for travelontip external system transactionId: #[vars.transactionId] reason : #[error.errorMessage] error Type: #[error.errorType]=="/>
+				<ee:transform doc:name="Transform Message" doc:id="99ea8bb4-a247-4759-adf5-cc51a707babd" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[%dw 2.0
+output application/json
+---
+500]]></ee:set-variable>
+						<ee:set-variable variableName="errorMessage" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorCode" : "s123s",
+	"ErrorMessage" : "Error in Travelontip System"
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
